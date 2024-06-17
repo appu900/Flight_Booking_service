@@ -40,6 +40,44 @@ class BookingRepository {
       );
     }
   }
+
+  async destroy(bookingId) {
+    try {
+      const response = await Booking.destroy({
+        where: {
+          id: bookingId,
+        },
+      });
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async get(id) {
+    try {
+      const response = await Booking.findByPk(id);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getByUserId(requestedUserId) {
+    try {
+      const response = await Booking.findAll({
+        where: {
+          userId: requestedUserId,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+  
 }
 
 module.exports = BookingRepository;
