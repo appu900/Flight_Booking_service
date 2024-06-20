@@ -14,8 +14,6 @@ const createChannel = async () => {
 };
 
 
-
-
 const subscribeMessage = async (channel, service, binding_key) => {
   try {
 
@@ -38,14 +36,12 @@ const subscribeMessage = async (channel, service, binding_key) => {
 
 const publishMessage = async (channel, binding_key, message) => {
   try {
-    await channel.assertQueue("QUEUE_NAME");
+    await channel.assertQueue("REMINDER_QUEUE");
     await channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message));
   } catch (error) {
     throw error;
   }
 };
-
-
 
 module.exports = {
   subscribeMessage,
