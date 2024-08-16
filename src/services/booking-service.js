@@ -2,12 +2,51 @@ const { StatusCodes } = require("http-status-codes");
 const { FLIGHT_SERVICE_PATH } = require("../config/server-config");
 const { BookingRepository } = require("../repository/index");
 const { ServiceError } = require("../utils/Errors");
+const { createChannel, publishMessage } = require("../utils/message-queue")
+const { REMINDER_SERVICE_BINDING_KEY } = require("../config/server-config")
+const { getCurrentTime } = require("../utils/helper");
 
 const axios = require("axios");
+// const { createChannel } = require("../utils/message-queue");
+
 
 class BookingService {
+  channal;
   constructor() {
     this.bookingRepo = new BookingRepository();
+  }
+
+
+  async createChannalOnce(){
+     if(!this.channal){
+        this.channal = await createChannel();
+     }
+     return this.channal;
+  }
+
+
+  async sendNotification(){
+    try {
+        const channel = await createChannel()
+        const currentTime = getCurrentTime();
+        const payload = {
+          data:{
+            subject:"Booking Notification",
+            content:"Booking sucessfully done",
+            recepientEmail:"appudq670@gmail.com",
+            notificationTime: currentTime,
+          },
+          service:"CREATE_TICKET"
+        }
+
+        await publishMessage(
+          channel,
+          REMINDER_SERVICE_BINDING_KEY,
+          JSON.stringify(payload)
+        )
+    } catch (error) {
+       console.log(error);
+    }
   }
 
   async createBooking(data) {
@@ -47,6 +86,10 @@ class BookingService {
       const finalBooking = await this.bookingRepo.update(booking.id, {
         status: "Booked",
       });
+
+      await this.sendNotification();
+
+
 
       return finalBooking;
     } catch (error) {

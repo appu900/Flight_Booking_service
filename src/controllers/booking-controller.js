@@ -14,7 +14,7 @@ class BookingController {
     const currentTime = getCurrentTime();
     const payload = {
       data: {
-        subject: "Booking Reminder 4",
+        subject: "Booking Reminder 55",
         content: "Your booking is about to expire in 24 hours",
         recepientEmail: "appudq670@gmail.com",
         notificationTime: currentTime,
@@ -34,7 +34,10 @@ class BookingController {
   async create(req, res) {
     try {
       console.log(req.body);
-      const response = await bookingService.createBooking(req.body);
+      const userId = req.headers['x-user-id']
+      const bookingPayload = req.body;
+      bookingPayload.userId = userId;
+      const response = await bookingService.createBooking(bookingPayload);
       return res.status(StatusCodes.OK).json({
         success: true,
         data: response,
